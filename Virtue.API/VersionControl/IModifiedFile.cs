@@ -8,6 +8,7 @@ namespace Virtue.API.VersionControl
 {
     public interface IModifiedFile
     {
-        public string Path { get; }
+        string Path { get; }
+        FileStatus Status { get; }
     }
 }

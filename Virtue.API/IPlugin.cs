@@ -8,6 +8,11 @@ namespace Virtue.API
     public interface IPlugin
     {
         /// <summary>
+        /// The name of this plugin as displayed to users.
+        /// </summary>
+        string FriendlyName { get; }
+
+        /// <summary>
         /// Runs when loading the plugin each session.
         /// </summary>
         void OnInitialize();

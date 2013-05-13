@@ -8,6 +8,16 @@
     public interface IVersionControlProvider
     {
         /// <summary>
+        /// The identity this provider uses to make commits.
+        /// </summary>
+        IAuthor Identity { get; }
+
+        /// <summary>
+        /// Loads the specified repository into this instance of the VCS provider.
+        /// </summary>
+        void Load(string localPath);
+
+        /// <summary>
         /// Creates a local copy of the specified remote repository by its URL.
         /// </summary>
         void Clone(string url, string localPath);

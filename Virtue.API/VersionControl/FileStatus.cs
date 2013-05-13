@@ -5,9 +5,13 @@ using System.Text;
 
 namespace Virtue.API.VersionControl
 {
-    public interface IChangeset
+    public enum FileStatus
     {
-        IAuthor Author { get; set; }
-        object Identifier { get; set; }
+        Added,
+        Removed,
+        Renamed,
+        Deleted,
+        Untracked,
+        Modified
     }
 }

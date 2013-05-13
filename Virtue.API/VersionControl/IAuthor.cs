@@ -7,7 +7,7 @@ namespace Virtue.API.VersionControl
 {
     public interface IAuthor
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
+        string Name { get; set; }
+        string Email { get; set; }
     }
 }
