@@ -26,5 +26,11 @@ namespace Virtue.API
         /// Runs before OnInitialize on the first run after this plugin is installed.
         /// </summary>
         void OnInstalled();
+
+        /// <summary>
+        /// Called during project setup to offer plugins an opportunity to gather information from
+        /// the user.
+        /// </summary>
+        void Setup(IProject project);
     }
 }
