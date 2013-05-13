@@ -42,6 +42,8 @@
   <ItemGroup>
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginHost.cs" />
+    <Compile Include="IProject.cs" />
+    <Compile Include="IUpdateProvider.cs" />
     <Compile Include="VersionControl\IAuthor.cs" />
     <Compile Include="VersionControl\IChangeset.cs" />
     <Compile Include="VersionControl\IModifiedFile.cs" />

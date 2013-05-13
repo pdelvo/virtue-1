@@ -7,6 +7,13 @@
     /// </summary>
     public interface IVersionControlProvider
     {
+        void GetIdentity(IPluginHost host, IProject project);
+
+        /// <summary>
+        /// The friendly name for this version control provider.
+        /// </summary>
+        string FriendlyName { get; }
+
         /// <summary>
         /// The identity this provider uses to make commits.
         /// </summary>

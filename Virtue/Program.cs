@@ -88,9 +88,10 @@ namespace Virtue
             descriptor.Version = Console.ReadLine();
             Console.Write("Description: ");
             descriptor.Description = Console.ReadLine();
-            descriptor.Files = new string[0];
+            Console.Write("Base DLL: ");
+            descriptor.BaseDll = Console.ReadLine();
             File.WriteAllText(file, JsonConvert.SerializeObject(descriptor));
-            Console.WriteLine("Plugin descriptor '{0}' generated. Populate it with required files.", file);
+            Console.WriteLine("Plugin descriptor '{0}' generated.", file);
         }
 
         private void Run()
@@ -132,26 +133,32 @@ namespace Virtue
             {
                 Configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationFilePath));
                 Log("Loaded configuration file '{0}'", ConfigurationFilePath);
+                if (Configuration.Plugins.Length == 0)
+                    Log("No plugins loaded.");
+                else
+                    LoadPlugins();
+                if (Configuration.Projects.Length == 0)
+                    Log("No projects loaded.");
+                else
+                    LoadProjects();
             }
-            if (Configuration.Plugins.Length == 0)
-                Log("No plugins loaded.");
-            else
-                LoadPlugins();
-            if (Configuration.Projects.Length == 0)
-                Log("No projects loaded.");
-            else
-                LoadProjects();
             return true;
         }
 
-        private void LoadProjects()
+        internal void LoadProjects()
         {
             
         }
 
-        private void LoadPlugins()
+        internal void LoadPlugins()
         {
-            
+            foreach (var plugin in Configuration.Plugins)
+            {
+                var descriptor = JsonConvert.DeserializeObject<PluginDescriptor>(File.ReadAllText(plugin));
+                descriptor.DescriptorFile = plugin;
+                Assembly.LoadFrom(Path.Combine("plugins", descriptor.BaseDll));
+                Log("Loaded plugin '{0}'", descriptor.FriendlyName);
+            }
         }
 
         private bool DoSetup()
@@ -168,7 +175,7 @@ namespace Virtue
             Configuration = new Configuration();
             if (choice == "1")
             {
-                Setup.Run(Configuration);
+                Setup.Run(Configuration, this);
                 File.WriteAllText(ConfigurationFilePath, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
                 Log("Configuration saved to '{0}'", ConfigurationFilePath);
                 return true;
@@ -197,6 +204,28 @@ namespace Virtue
                 LogStream.WriteLine("{0}: {1}", DateTime.Now.ToLongTimeString(), string.Format(text, parameters));
                 LogStream.Flush();
             }
+        }
+
+
+        public void RunUpdate(IProject project)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadPassword()
+        {
+            var passbits = new Stack<string>();
+            for (ConsoleKeyInfo cki = Console.ReadKey(true); cki.Key != ConsoleKey.Enter; cki = Console.ReadKey(true))
+            {
+                if (cki.Key == ConsoleKey.Backspace)
+                    passbits.Pop();
+                else
+                    passbits.Push(cki.KeyChar.ToString());
+            }
+            string[] pass = passbits.ToArray();
+            Array.Reverse(pass);
+            Console.Write(Environment.NewLine);
+            return string.Join(string.Empty, pass);
         }
     }
 }

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="PeriodicUpdateProvider.cs" />
     <Compile Include="PluginDescriptor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />

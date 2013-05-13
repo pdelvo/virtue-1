@@ -6,12 +6,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Virtue.API;
 using Virtue.API.VersionControl;
 
 namespace Virtue.GitPlugin
 {
     public class GitProvider : IVersionControlProvider
     {
+        public void GetIdentity(IPluginHost host, IProject project)
+        {
+            Console.WriteLine("The following options are available:");
+            Console.WriteLine("[0]: Username and password (HTTPS)");
+            Console.WriteLine("[1]: Private key (SSH)");
+            int selection = -1;
+            while (selection != 0)
+            {
+                Console.Write("> ");
+                var input = Console.ReadLine();
+                int.TryParse(input, out selection);
+                if (selection == 1)
+                    Console.WriteLine("Not currently supported");
+            }
+            if (selection == 0)
+            {
+                Console.Write("Username: ");
+                var username = Console.ReadLine();
+                Console.Write("Password: ");
+                var password = host.ReadPassword();
+                project["GitProvider.Username"] = username;
+                project["GitProvider.Password"] = password;
+                Credentials = new UsernamePasswordCredentialsProvider(username, password);
+            }
+        }
+
+        public string FriendlyName
+        {
+            get { return "Git Version Control Provider"; }
+        }
+
         public GitProvider()
         {
             DefaultRemote = "origin";
@@ -50,6 +82,8 @@ namespace Virtue.GitPlugin
             command.SetDirectory(new Sharpen.FilePath(localPath));
             command.SetURI(url);
             command.SetProgressMonitor(new TextProgressMonitor());
+            if (Credentials != null)
+                command.SetCredentialsProvider(Credentials);
             Repository = command.Call();
         }
 
