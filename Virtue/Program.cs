@@ -30,7 +30,7 @@ namespace Virtue
                     switch (arg)
                     {
                         case "--config":
-                            if (i >= args.Length)
+                            if (i >= args.Length - 1)
                             {
                                 Console.WriteLine("Missing parameter for '--config'");
                                 return;
@@ -38,13 +38,21 @@ namespace Virtue
                             instance.ConfigurationFilePath = args[++i];
                             break;
                         case "--log":
-                            if (i >= args.Length)
+                            if (i >= args.Length - 1)
                             {
                                 Console.WriteLine("Missing parameter for '--log'");
                                 return;
                             }
                             instance.LogFilePath = args[++i];
                             break;
+                        case "--generate-descriptor":
+                            if (i >= args.Length - 1)
+                            {
+                                Console.WriteLine("Missing parameter for '--generate-descriptor'");
+                                return;
+                            }
+                            GeneratePluginDescriptor(args[++i]);
+                            return;
                         default:
                             Console.WriteLine("Invalid option '{0}'", arg);
                             return;
@@ -69,6 +77,20 @@ namespace Virtue
         {
             ConfigurationFilePath = "config.json";
             LogFilePath = "log.txt";
+        }
+
+        private static void GeneratePluginDescriptor(string file)
+        {
+            var descriptor = new PluginDescriptor();
+            Console.Write("Friendly name: ");
+            descriptor.FriendlyName = Console.ReadLine();
+            Console.Write("Version: ");
+            descriptor.Version = Console.ReadLine();
+            Console.Write("Description: ");
+            descriptor.Description = Console.ReadLine();
+            descriptor.Files = new string[0];
+            File.WriteAllText(file, JsonConvert.SerializeObject(descriptor));
+            Console.WriteLine("Plugin descriptor '{0}' generated. Populate it with required files.", file);
         }
 
         private void Run()
@@ -105,10 +127,7 @@ namespace Virtue
         private bool LoadConfiguration()
         {
             if (!File.Exists(ConfigurationFilePath))
-            {
-                Setup();
-                return false;
-            }
+                return DoSetup();
             else
             {
                 Configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationFilePath));
@@ -135,8 +154,9 @@ namespace Virtue
             
         }
 
-        private void Setup()
+        private bool DoSetup()
         {
+            GenerateDirectories();
             Log("No configuration file found.");
             Console.WriteLine("Would you like to run first-time setup (1), or generate an empty{0}configuration (2)?", Environment.NewLine);
             string choice;
@@ -145,16 +165,28 @@ namespace Virtue
                 Console.Write("> ");
                 choice = Console.ReadLine();
             } while (choice != "1" && choice != "2");
+            Configuration = new Configuration();
             if (choice == "1")
             {
-                // TODO
+                Setup.Run(Configuration);
+                File.WriteAllText(ConfigurationFilePath, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
+                Log("Configuration saved to '{0}'", ConfigurationFilePath);
+                return true;
             }
             else
             {
-                var config = new Configuration();
-                File.WriteAllText(ConfigurationFilePath, JsonConvert.SerializeObject(config, Formatting.Indented));
+                File.WriteAllText(ConfigurationFilePath, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
                 Log("Blank configuration generated in {0}, edit and restart.", ConfigurationFilePath);
+                return false;
             }
+        }
+
+        private void GenerateDirectories()
+        {
+            if (!Directory.Exists("plugins"))
+                Directory.CreateDirectory("plugins");
+            if (!Directory.Exists("projects"))
+                Directory.CreateDirectory("projects");
         }
 
         public void Log(string text, params object[] parameters)
