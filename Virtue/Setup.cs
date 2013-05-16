@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Virtue.API;
 using Virtue.API.VersionControl;
 
 namespace Virtue
@@ -14,13 +15,23 @@ namespace Virtue
     {
         public static void Run(Configuration config, Program instance)
         {
-            var pluginFiles = Directory.GetFiles("plugins", "*.json");
+            var pluginFiles = Directory.GetFiles("plugins", "*.dll");
             var descriptors = new List<PluginDescriptor>(pluginFiles.Select(f =>
                 {
-                    var d = JsonConvert.DeserializeObject<PluginDescriptor>(File.ReadAllText(f));
-                    d.DescriptorFile = f;
-                    return d;
-                }).ToArray());
+                    var assembly = Assembly.LoadFrom(f);
+                    var attribute =
+                        assembly.GetCustomAttributes(typeof (PluginAssemblyAttribute), false).SingleOrDefault() as
+                        PluginAssemblyAttribute;
+                    if (attribute == null) return null;
+
+                    return new PluginDescriptor
+                        {
+                            BaseDll = Path.GetFileName(assembly.CodeBase),
+                            Description = attribute.Description,
+                            FriendlyName = attribute.FriendlyName,
+                            Version = attribute.Version
+                        };
+                }).Where(a => a != null).ToArray());
             while (descriptors.Any())
             {
                 Console.WriteLine("The following plugins were found in the 'plugins' folder:");
@@ -39,7 +50,7 @@ namespace Virtue
                     if (index < descriptors.Count)
                     {
                         Console.WriteLine("Installed '{0}'", descriptors[index].FriendlyName);
-                        config.Plugins = config.Plugins.Concat(new[] { descriptors[index].DescriptorFile }).ToArray();
+                        config.Plugins = config.Plugins.Concat(new[] { descriptors[index].BaseDll }).ToArray();
                         descriptors.RemoveAt(index);
                     }
                 }

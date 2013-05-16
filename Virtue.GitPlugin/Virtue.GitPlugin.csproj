@@ -62,6 +62,7 @@
     <Compile Include="Changeset.cs" />
     <Compile Include="GitProvider.cs" />
     <Compile Include="ModifiedFile.cs" />
+    <Compile Include="PluginRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -69,11 +70,6 @@
       <Project>{d85cd2cc-9fa9-4993-bced-a205ed13c653}</Project>
       <Name>Virtue.API</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Virtue.GitPlugin.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

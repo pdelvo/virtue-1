@@ -154,9 +154,20 @@ namespace Virtue
         {
             foreach (var plugin in Configuration.Plugins)
             {
-                var descriptor = JsonConvert.DeserializeObject<PluginDescriptor>(File.ReadAllText(plugin));
-                descriptor.DescriptorFile = plugin;
-                Assembly.LoadFrom(Path.Combine("plugins", descriptor.BaseDll));
+                var assembly = Assembly.LoadFrom(Path.Combine("plugins", plugin));
+
+                    var attribute =
+                        assembly.GetCustomAttributes(typeof (PluginAssemblyAttribute), false).SingleOrDefault() as PluginAssemblyAttribute;
+                if(attribute == null) throw new InvalidOperationException("The given plugin assembly does not contain a plugin descriptor");
+
+                var descriptor = new PluginDescriptor
+                    {
+                        BaseDll = plugin,
+                        Description = attribute.Description,
+                        FriendlyName = attribute.FriendlyName,
+                        Version = attribute.Version
+                    };
+
                 Log("Loaded plugin '{0}'", descriptor.FriendlyName);
             }
         }
