@@ -16,22 +16,7 @@ namespace Virtue
         public static void Run(Configuration config, Program instance)
         {
             var pluginFiles = Directory.GetFiles("plugins", "*.dll");
-            var descriptors = new List<PluginDescriptor>(pluginFiles.Select(f =>
-                {
-                    var assembly = Assembly.LoadFrom(f);
-                    var attribute =
-                        assembly.GetCustomAttributes(typeof (PluginAssemblyAttribute), false).SingleOrDefault() as
-                        PluginAssemblyAttribute;
-                    if (attribute == null) return null;
-
-                    return new PluginDescriptor
-                        {
-                            BaseDll = Path.GetFileName(assembly.CodeBase),
-                            Description = attribute.Description,
-                            FriendlyName = attribute.FriendlyName,
-                            Version = attribute.Version
-                        };
-                }).Where(a => a != null).ToArray());
+            var descriptors = new List<PluginDescriptor>(pluginFiles.Select(f => PluginInformationGetter.GetInformation(Path.GetFileName(f))).Where(a => a != null).ToArray());
             while (descriptors.Any())
             {
                 Console.WriteLine("The following plugins were found in the 'plugins' folder:");

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Virtue
 {
+    [Serializable]
     public class PluginDescriptor
     {
         public string FriendlyName { get; set; }

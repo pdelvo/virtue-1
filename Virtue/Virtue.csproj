@@ -48,6 +48,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="PeriodicUpdateProvider.cs" />
     <Compile Include="PluginDescriptor.cs" />
+    <Compile Include="PluginInformationGetter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

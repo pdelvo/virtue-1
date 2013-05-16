@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Virtue.API;
 
 namespace Virtue
@@ -154,23 +152,12 @@ namespace Virtue
         {
             foreach (var plugin in Configuration.Plugins)
             {
-                var assembly = Assembly.LoadFrom(Path.Combine("plugins", plugin));
-
-                    var attribute =
-                        assembly.GetCustomAttributes(typeof (PluginAssemblyAttribute), false).SingleOrDefault() as PluginAssemblyAttribute;
-                if(attribute == null) throw new InvalidOperationException("The given plugin assembly does not contain a plugin descriptor");
-
-                var descriptor = new PluginDescriptor
-                    {
-                        BaseDll = plugin,
-                        Description = attribute.Description,
-                        FriendlyName = attribute.FriendlyName,
-                        Version = attribute.Version
-                    };
-
-                Log("Loaded plugin '{0}'", descriptor.FriendlyName);
+                var descriptor = PluginInformationGetter.GetInformation(plugin);
+                Log("Loaded plugin '{0}'", descriptor);
             }
         }
+
+     
 
         private bool DoSetup()
         {
